@@ -25,6 +25,7 @@ final class PanelController: NSObject, NSWindowDelegate {
         let panel = FloatingPanel()
         panel.contentViewController = host
         self.panel = panel
+
         super.init()
         panel.delegate = self
         restoreOrPlaceFrame()

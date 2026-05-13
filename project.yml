@@ -34,6 +34,7 @@ targets:
         CFBundleVersion: "1"
         NSHumanReadableCopyright: ""
         NSSupportsAutomaticGraphicsSwitching: true
+        CFBundleIconName: AppIcon
     entitlements:
       path: Scorecard/Scorecard.entitlements
       properties:
