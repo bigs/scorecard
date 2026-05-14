@@ -74,10 +74,12 @@ struct ScorecardDetail: View {
             }
             .overlay {
                 if cell.state == .inProgress {
-                    // Accent stroke is the only "this round is live" cue —
-                    // the under-par text color already does the heavy lifting.
+                    // Tertiary stroke matches the chip's "R1/R2/R3/R4"
+                    // label color so the live-round affordance lives in the
+                    // same visual register as the rest of the chip. The
+                    // under-par text color already carries the loudness.
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .stroke(Color.accentColor.opacity(0.55), lineWidth: 1)
+                        .stroke(.tertiary, lineWidth: 1)
                 }
             }
         }
