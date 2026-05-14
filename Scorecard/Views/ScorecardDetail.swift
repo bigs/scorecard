@@ -70,25 +70,15 @@ struct ScorecardDetail: View {
             .padding(.vertical, 6)
             .background {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(chipFill)
+                    .fill(.thinMaterial)
             }
             .overlay {
                 if cell.state == .inProgress {
-                    // Subtle accent-tinted border so an in-progress round
-                    // stands out from a finished one at a glance.
+                    // Accent stroke is the only "this round is live" cue —
+                    // the under-par text color already does the heavy lifting.
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .stroke(Color.accentColor.opacity(0.55), lineWidth: 1)
                 }
-            }
-        }
-
-        private var chipFill: AnyShapeStyle {
-            switch cell.state {
-            case .inProgress:
-                // Live round — a faint accent wash to read as "happening now".
-                return AnyShapeStyle(Color.accentColor.opacity(0.12))
-            case .complete, .notStarted:
-                return AnyShapeStyle(Material.thin)
             }
         }
 
