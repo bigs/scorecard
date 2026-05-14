@@ -35,11 +35,21 @@ struct LeaderboardEntry: Identifiable, Hashable, Sendable {
     let status: PlayerStatus
 
     struct RoundTotal: Identifiable, Hashable, Sendable {
+        enum State: Hashable, Sendable {
+            case notStarted   // player hasn't begun this round
+            case inProgress   // 1..17 holes played
+            case complete     // all 18 holes played
+        }
+
         let id: Int          // round number (1..4)
-        let strokes: Int?    // nil if not yet played
-        let toPar: Int?      // strokes - par for that round, nil if unknown
-        var displayValue: String {
-            strokes.map(String.init) ?? "—"
+        let strokes: Int?    // nil if not yet played; partial total for in-progress rounds
+        let toPar: Int?      // to par for the round so far; nil if not started
+        let holesPlayed: Int // 0 = not started, 18 = complete, 1..17 = in progress
+
+        var state: State {
+            if holesPlayed <= 0 { return .notStarted }
+            if holesPlayed >= 18 { return .complete }
+            return .inProgress
         }
     }
 }

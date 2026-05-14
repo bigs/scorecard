@@ -209,15 +209,26 @@ struct ESPNProvider: LeaderboardProvider {
         )
 
         let rounds: [LeaderboardEntry.RoundTotal] = (competitor.linescores ?? []).enumerated().map { idx, line in
+            let holesPlayed = line.linescores?.count ?? 0
             let strokes = line.value.flatMap { $0 > 0 ? Int($0) : nil }
+            // ESPN's `displayValue` on the round is the round's to-par so
+            // far ("-3", "E", "+2"). Trust that — it's accurate for both
+            // completed rounds and in-progress rounds where computing
+            // strokes - fullCoursePar would be wrong. Fall back to the
+            // strokes - par calculation only for completed rounds where
+            // both are available.
             let toPar: Int? = {
-                guard let par, let strokes else { return nil }
+                if let parsed = parseToPar(line.displayValue), holesPlayed > 0 {
+                    return parsed
+                }
+                guard let par, let strokes, holesPlayed >= 18 else { return nil }
                 return strokes - par
             }()
             return LeaderboardEntry.RoundTotal(
                 id: line.period ?? (idx + 1),
                 strokes: strokes,
-                toPar: toPar
+                toPar: toPar,
+                holesPlayed: holesPlayed
             )
         }
         return LeaderboardEntry(
@@ -361,6 +372,18 @@ struct ESPNProvider: LeaderboardProvider {
             if detail.contains("suspend") { return .suspended }
             return .scheduled
         }
+    }
+
+    /// Parse a golf "to par" display string into an Int. Handles "E"
+    /// (even), "-3", "+5", and bare integers. Returns nil for empty or
+    /// unrecognised input.
+    private static func parseToPar(_ raw: String?) -> Int? {
+        guard let raw, !raw.isEmpty else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespaces)
+        if trimmed.uppercased() == "E" { return 0 }
+        var s = trimmed
+        if s.hasPrefix("+") { s.removeFirst() }
+        return Int(s)
     }
 
     private static func extractCutScore(from notes: [ESPN.Note]?) -> Int? {

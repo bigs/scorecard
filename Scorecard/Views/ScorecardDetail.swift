@@ -27,9 +27,9 @@ struct ScorecardDetail: View {
     private var roundsTable: some View {
         let cells: [RoundCell] = (1...4).map { round in
             if let rt = entry.rounds.first(where: { $0.id == round }) {
-                return RoundCell(round: round, strokes: rt.strokes, toPar: rt.toPar)
+                return RoundCell(round: round, toPar: rt.toPar, state: rt.state)
             } else {
-                return RoundCell(round: round, strokes: nil, toPar: nil)
+                return RoundCell(round: round, toPar: nil, state: .notStarted)
             }
         }
         return HStack(spacing: 6) {
@@ -45,8 +45,8 @@ struct ScorecardDetail: View {
 
     private struct RoundCell: Identifiable {
         let round: Int
-        let strokes: Int?
         let toPar: Int?
+        let state: LeaderboardEntry.RoundTotal.State
         var id: Int { round }
     }
 
@@ -58,21 +58,38 @@ struct ScorecardDetail: View {
                 Text("R\(cell.round)")
                     .font(.system(size: 8, weight: .semibold))
                     .foregroundStyle(.tertiary)
-                // Score-to-par for the round so far. This is the right number
-                // for both a finished round and a mid-round (shotgun or not):
-                // for LIV's shotgun starts the gross stroke count for an
-                // incomplete round is ambiguous without also knowing how
-                // many holes have been played — to-par stays meaningful.
+                // Score-to-par for the round so far. Meaningful for both
+                // completed rounds and in-progress rounds (and works for
+                // LIV's shotgun starts, where the gross stroke total for
+                // an incomplete round would be ambiguous).
                 Text(LeaderboardEntry.formatToPar(cell.toPar))
                     .font(.system(size: 12, weight: .semibold, design: .monospaced))
                     .foregroundStyle(toParStyle)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
-            .background(
+            .background {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(.thinMaterial)
-            )
+                    .fill(chipFill)
+            }
+            .overlay {
+                if cell.state == .inProgress {
+                    // Subtle accent-tinted border so an in-progress round
+                    // stands out from a finished one at a glance.
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .stroke(Color.accentColor.opacity(0.55), lineWidth: 1)
+                }
+            }
+        }
+
+        private var chipFill: AnyShapeStyle {
+            switch cell.state {
+            case .inProgress:
+                // Live round — a faint accent wash to read as "happening now".
+                return AnyShapeStyle(Color.accentColor.opacity(0.12))
+            case .complete, .notStarted:
+                return AnyShapeStyle(Material.thin)
+            }
         }
 
         private var toParStyle: AnyShapeStyle {
