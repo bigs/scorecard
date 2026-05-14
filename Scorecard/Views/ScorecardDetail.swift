@@ -11,9 +11,6 @@ struct ScorecardDetail: View {
                 if let today = entry.today {
                     Stat(label: "Today", value: LeaderboardEntry.formatToPar(today))
                 }
-                if let total = entry.scoreToPar {
-                    Stat(label: "Total", value: LeaderboardEntry.formatToPar(total))
-                }
                 Spacer(minLength: 0)
                 if let url = espnURL {
                     Link(destination: url) {
@@ -57,19 +54,21 @@ struct ScorecardDetail: View {
         let cell: RoundCell
 
         var body: some View {
-            VStack(spacing: 2) {
+            VStack(spacing: 3) {
                 Text("R\(cell.round)")
                     .font(.system(size: 8, weight: .semibold))
                     .foregroundStyle(.tertiary)
-                Text(cell.strokes.map(String.init) ?? "—")
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(cell.strokes == nil ? .secondary : .primary)
+                // Score-to-par for the round so far. This is the right number
+                // for both a finished round and a mid-round (shotgun or not):
+                // for LIV's shotgun starts the gross stroke count for an
+                // incomplete round is ambiguous without also knowing how
+                // many holes have been played — to-par stays meaningful.
                 Text(LeaderboardEntry.formatToPar(cell.toPar))
-                    .font(.system(size: 9, weight: .medium, design: .monospaced))
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
                     .foregroundStyle(toParStyle)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 5)
+            .padding(.vertical, 6)
             .background(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(.thinMaterial)
