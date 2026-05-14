@@ -6,7 +6,10 @@ struct LeaderboardList: View {
     @Environment(StarredPlayersStore.self) private var starred
 
     var body: some View {
-        ScrollView {
+        GlassScrollView {
+            // `GlassScrollView` hosts this content in an NSHostingView, so
+            // re-inject our environment values; they don't automatically
+            // bridge across the NSViewRepresentable boundary.
             LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                 let starredEntries = board.entries.filter { starred.isStarred($0.id) }
                 if !starredEntries.isEmpty {
@@ -30,8 +33,9 @@ struct LeaderboardList: View {
                     }
                 }
             }
+            .environment(state)
+            .environment(starred)
         }
-        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 

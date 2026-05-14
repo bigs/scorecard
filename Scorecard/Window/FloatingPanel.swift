@@ -14,11 +14,12 @@ final class FloatingPanel: NSPanel {
         isFloatingPanel = true
         level = .floating
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        // Drag from the system title bar area only. `true` here would make
-        // any background region a drag handle, but that ends up swallowing
-        // clicks on SwiftUI's scroll bar (and any other control AppKit
-        // doesn't recognise through the NSHostingView), so users can't
-        // scroll the leaderboard.
+        // We disable AppKit's `isMovableByWindowBackground` machinery
+        // because it doesn't reliably honour `mouseDownCanMoveWindow` on
+        // SwiftUI-hosted view hierarchies (verified empirically: AppKit
+        // hit-tests find our subclass returning `false`, but still drags
+        // the window). Title-bar drag is implemented manually in
+        // `sendEvent(_:)` via `performDrag(with:)`.
         isMovableByWindowBackground = false
         titleVisibility = .hidden
         titlebarAppearsTransparent = true
