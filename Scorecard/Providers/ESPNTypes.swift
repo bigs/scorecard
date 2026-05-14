@@ -95,6 +95,11 @@ enum ESPN {
         let period: Int?
         let value: Double?
         let displayValue: String?
+        /// Per-hole detail nested under each round's linescore. Mid-
+        /// tournament this is the only place ESPN's `/scoreboard` exposes
+        /// "thru" — the count is how many holes the player has played in
+        /// the current round.
+        let linescores: [Linescore]?
     }
 
     /// Some fields come back as a string ("E", "-12") or a number (-12).
